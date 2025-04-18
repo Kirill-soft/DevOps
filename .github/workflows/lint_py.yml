@@ -1,0 +1,20 @@
+name: Python Lint
+
+on:
+  push: null
+  workflow_dispatch: null
+
+jobs:
+  Pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Python Linter
+        uses: sunnysid3up/python-linter@master
+        with:
+          source: "."
+          mypy-options: "--show-error-codes"
+          # pylint-options: "--rcfile=setup.cfg"
+          isort-options: "-w 100"
+          django: false
