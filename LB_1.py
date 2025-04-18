@@ -3,8 +3,8 @@
 
 from math import cos, sin
 
-a = 5.0
-b = 5.6
+a = 8.0
+b = 8.6
 eps = 0.0001
 
 
