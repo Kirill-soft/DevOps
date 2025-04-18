@@ -54,9 +54,9 @@ jobs:
               
       - name: Archive
         run: |
-        find . -name "*.py" > filelist.txt
-        tar -czf ${{ env.APP_NAME }}${{ github.event.inputs.version || github.ref_name }}.tar.gz -T ./filelist.txt
-        zip -@ ${{ env.APP_NAME }}${{ github.event.inputs.version || github.ref_name }}.zip < ./filelist.txt
+          find . -name "*.py" > filelist.txt
+          tar -czf ${{ env.APP_NAME }}${{ github.event.inputs.version || github.ref_name }}.tar.gz -T ./filelist.txt
+          zip -@ ${{ env.APP_NAME }}${{ github.event.inputs.version || github.ref_name }}.zip < ./filelist.txt
             
       - name: Generate release notes
         id: release_notes
