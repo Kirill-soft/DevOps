@@ -11,3 +11,5 @@
 - Телеграмм: @deicstra
 - Почта: 2023100681@togudv.ru# DevOps
 # DevOps
+
+![GitHub last commit](https://img.shields.io/github/last-commit/Kirill-soft/DevOps)
