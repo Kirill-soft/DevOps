@@ -3,7 +3,7 @@
 
 from math import cos, sin
 
-a = 5.4
+a = 5.0
 b = 5.6
 eps = 0.0001
 
