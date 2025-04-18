@@ -26,6 +26,6 @@ jobs:
         with:
           source: "."
           mypy-options: "--show-error-codes"
-          pylint-options: "--ignore  __init__.py"
+          pylint-options: "--recursive"
           isort-options: "-w 100"
           django: false
