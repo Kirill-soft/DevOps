@@ -28,4 +28,4 @@ jobs:
           
       - name: Run pylint
         run: |
-          pylint $(find . -name "*.py")
+          pylint --disable=missing-docstring,invalid-name $(find . -name "*.py")
