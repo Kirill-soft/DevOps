@@ -1,16 +1,27 @@
 name: Python Lint
 
 on:
-  push: null
-  workflow_dispatch: null
+  push:
+    # paths:
+    #  - "**.py"
+  pull_request:
+    # paths:
+    #   - "**.py"
 
 jobs:
-  Pylint:
+  Lint:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Python Linter
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+        
+      - name: Python Linter (mypy, pylint, black, isort)
         uses: sunnysid3up/python-linter@master
         with:
           source: "."
