@@ -24,8 +24,8 @@ jobs:
       - name: Python Linter (mypy, pylint, black, isort)
         uses: sunnysid3up/python-linter@master
         with:
-          source: "./*.py"
+          source: "."
           mypy-options: "--show-error-codes"
-          # pylint-options: "--rcfile=setup.cfg"
+          pylint-options: "--ignore  __init__.py"
           isort-options: "-w 100"
           django: false
