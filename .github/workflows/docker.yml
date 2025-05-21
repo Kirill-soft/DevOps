@@ -2,6 +2,7 @@ name: Deploy on Docker Hub
 
 on:
     push:
+    workflow_dispatch:
 
 env:
     IMAGE: kirillsoft/laba

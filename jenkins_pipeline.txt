@@ -1,0 +1,89 @@
+pipeline {
+    agent any
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+	environment {
+        	APP_NAME="laba"
+		GIT_CREDENTIALS_ID="github-token"
+		BUILD_DIR='/c/VSCodeProject/LB_progin/2S/lab/builds'
+    }
+	parameters {
+        string(name: 'APP_VERSION', defaultValue: 'v0.0.0', description: 'Версия приложения')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+				git branch: 'main', credentialsId: GIT_CREDENTIALS_ID, url: 'https://github.com/Kirill-soft/DevOps.git'
+			}
+        }
+        stage('Create tag') {
+            steps {
+                sh '''
+					#!/bin/bash
+					if [[ ! "${APP_VERSION}" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+\$ ]]; then
+							echo "Error: Version must be in the format vX.Y.Z (e.g., v1.2.3)"
+							exit 1
+					fi
+				'''
+				script {
+                    if (env.APP_VERSION == "v0.0.0") {
+                        env.APP_VERSION = sh(
+                            script: "git describe --tags --abbrev=0",
+                            returnStdout: true
+                        ).trim()
+                        sh "git checkout ${env.APP_VERSION}"
+						sh "echo \"Getting latest version: ${env.APP_VERSION}\""
+                    }
+				}
+				withCredentials([usernamePassword(credentialsId: GIT_CREDENTIALS_ID, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+					sh '''
+						#!/bin/bash
+						if git rev-parse "${APP_VERSION}" >/dev/null 2>&1; then
+							echo "Version ${APP_VERSION} already exists. Building it!"
+							git checkout ${APP_VERSION}
+						else
+							echo "Creating new tag: ${APP_VERSION}"
+							git config --global user.name "Kirill-soft"
+							git config --global user.email "no-reply@github.com"
+							git tag ${APP_VERSION}
+							git push https://${GIT_USER}:${GIT_PASS}@github.com/Kirill-soft/DevOps.git --tags
+						fi
+					'''
+				}
+				script {
+					BUILD_DIR="${BUILD_DIR}/${APP_NAME}-${APP_VERSION}"
+				}
+			}
+        }
+        stage('Archive') {
+            steps {
+                sh """
+					#!/bin/bash
+					rm -rf ${BUILD_DIR}
+					mkdir -p ${BUILD_DIR}
+					/c/msys64/usr/bin/find.exe . -name "*.py" > filelist.txt
+          				tar -czf ${BUILD_DIR}/${APP_NAME}${APP_VERSION}.tar.gz -T ./filelist.txt
+					zip -@ ${BUILD_DIR}/${APP_NAME}${APP_VERSION}.zip < ./filelist.txt
+                """
+            }
+        }
+        stage('Make release notes and deploy') {
+            steps {
+                sh """
+				#!/bin/bash
+				TAG=\$(git describe --tags --abbrev=0)
+				PREV_TAG=\$(git describe --tags --abbrev=0 \$TAG^ || echo "")
+				echo "${APP_NAME} Release ${APP_VERSION}" > release_notes.md
+				echo "Включает следующие коммиты: " >> release_notes.md
+				if [ -z "\$PREV_TAG" ]; then
+					git log --pretty=format:"- %h %s" "\$TAG" >> release_notes.md
+				else
+					git log --pretty=format:"- %h %s" "\$PREV_TAG".."\$TAG" >> release_notes.md
+				fi
+				mv release_notes.md ${BUILD_DIR}
+                """
+            }
+        }
+    }
+}
